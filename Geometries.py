@@ -169,8 +169,27 @@ class Traverser:
     start_pos: tuple[float, float, float]
     direction: tuple[float, float, float]
     speed: float
-    update_per_unit: float
+    updates_per_unit: int
 
-    def epsilons_after_time(self, time) -> list[float]:
+    def __init__(self, start_pos: tuple[float, float, float], direction: tuple[float, float, float], speed: float = 1, updates_per_unit:float = 5) -> None:
+        self.start_pos = start_pos
+        self.direction = direction
+        self.speed = speed
+        self.updates_per_unit = updates_per_unit
+
+    def epsilons_after_time(self, time: float, cube: PermeabilityCube) -> list[float]:
         destination = self.start_pos + self.direction * self.speed * time
-        updates = math.ceil(ursinamath.distance(self.start_pos, destination)) * updates_per_unit
+        updates = math.ceil(ursinamath.distance(self.start_pos, destination)) * self.updates_per_unit
+
+        # Only applicable for 1D movement
+        index = self.direction.index(1) # Get index where direction = 1
+
+        epsilons = [cube.permeability_at_point(self.start_pos)]
+        
+        for update in range(updates):
+            distance = (updates + 1) / self.updates_per_unit # +1 because we already counted starting position
+            cur_point = self.start_pos + self.direction * distance
+
+            epsilons += [cube.permeability_at_point(cur_point)]
+        
+        return epsilons
