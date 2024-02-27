@@ -2,6 +2,13 @@ from ursina import *
 from Utility import *
 from Geometries import Sphere
 
+def get_cube_info(circle_x, circle_y, circle_z, circle_r, epsilon):
+    return {
+        "radius": num_from_text(circle_r),
+        "center": (num_from_text(circle_x), num_from_text(circle_y), num_from_text(circle_z)),
+        "epsilons": (num_from_text(epsilon), num_from_text(epsilon), num_from_text(epsilon))
+        }
+
 def create_menu():
     menu = Entity(parent = camera.ui)
 
@@ -76,8 +83,11 @@ def create_menu():
         color = color.azure,
         position = (0.7, 0),
         scale = (0.2, 0.05),
-        on_click = lambda: Sphere.spawn_sphere((num_from_text(circle_x), num_from_text(circle_y), num_from_text(circle_z)), num_from_text(circle_r), StoredVals.min_epsilon, StoredVals.max_epsilon,
-                                               (num_from_text(epsilon), num_from_text(epsilon), num_from_text(epsilon))),
+        on_click = lambda: Sphere(
+            radius = num_from_text(circle_r),
+            epsilons= (num_from_text(epsilon), num_from_text(epsilon), num_from_text(epsilon)),
+            center = (num_from_text(circle_x), num_from_text(circle_y), num_from_text(circle_z))
+        ).spawn_sphere()
     )
 
     return menu

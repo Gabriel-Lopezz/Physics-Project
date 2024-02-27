@@ -5,11 +5,21 @@ from ursina import Entity, scene, ursinamath
 from Utility import *
 import math
 
-class Shape:
-    epsilon: float
+class Point:
+    epsilons: tuple[float, float, float]
+    position: tuple[float, float, float]
 
-    def permeability_at_point(self) -> float:
-        return self.epsilon
+    def __init__(self, epsilon: tuple[float, float, float]):
+        self.epsilons = epsilon
+
+    def permeability_at_point(self) -> tuple[float, float, float]:
+        return self.epsilons
+
+class Shape:
+    epsilons: tuple[float, float, float]
+
+    def permeability_at_point(self, position) -> tuple[float, float, float]:
+        return self.epsilons
     def is_out_of_range(self, val, min, max) -> bool:
             return val < min or val > max
 
@@ -131,36 +141,45 @@ class Sphere(Shape):
     epsilons: tuple[float, float, float]
     pattern: str
 
-    def __init__(self, radius: float, epsilon: float, center=(0,0,0), pattern="uniform") -> None:
+    def __init__(self, radius: float, epsilons: tuple[float, float, float], center=(0,0,0), pattern="uniform") -> None:
         self.center = center
         self.radius = radius
-        self.epsilon = epsilon
+        self.epsilons = epsilons
 
         if pattern not in ["uniform", "inverse", "inverse-squared"]:
             raise Exception("Please input a valid pattern")
         self.pattern = pattern
     
-    def permeability_at_point(self, x, y, z) -> float:
+    def permeability_at_point(self, x, y, z) -> tuple[float, float, float]:
         distance = math.sqrt(self.center, (x, y, z))
 
         if self.pattern == "uniform":
-            return self.epsilon
+            Ex = self.epsilons[0]
+            Ey = self.epsilons[1]
+            Ez = self.epsilons[2]
+            return (Ex, Ey, Ez)
         if self.pattern == "inverse":
-            return self.epsilon / distance
+            Ex = self.epsilons[0] / distance
+            Ey = self.epsilons[1] / distance
+            Ez = self.epsilons[2] / distance
+            return (Ex, Ey, Ez)
         if self.pattern == "inverse-squared":
-            return self.epsilon / distance**2
+            Ex = self.epsilons[0] / distance**2
+            Ey = self.epsilons[1] / distance**2
+            Ez = self.epsilons[2] / distance**2
+            return (Ex, Ey, Ez)
         
-    def spawn_sphere(pos: tuple[float, float, float], radius: float, min_epsilon: float, max_epsilon: float, epsilons: tuple[float, float, float]):
-        try:
-            Entity(
-                model = "sphere",
-                parent = scene,
-                position = pos,
-                color = color_from_permeability(min_epsilon, max_epsilon, epsilons),
-                scale = radius
-            )
-        except:
-            print("Please ensure Text Fields are in numbers")
+    def spawn_sphere(self):
+        ent = Entity(
+            model = "sphere",
+            collider= "sphere",
+            parent = scene,
+            position = self.center,
+            color = color_from_permeability(StoredVals.min_epsilon, StoredVals.max_epsilon, self.epsilons),
+            scale = self.radius
+        )
+
+        ent.geometry = self
 
     
     # Later implement out of range method

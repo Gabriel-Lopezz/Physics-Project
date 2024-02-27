@@ -19,7 +19,10 @@ def try_float(a) -> float:
         pass
 
 def num_from_text(text: Text) -> float:
-    return try_float(text.text)
+    try:
+        return try_float(text.text)
+    except:
+        print("Please ensure Text Fields are in numbers")
 
 # Get the interpolation factor for 'p' between two 'a' and 'b'
 def lerp_factor(a: float, b: float, p: float):

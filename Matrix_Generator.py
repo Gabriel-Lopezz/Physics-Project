@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 
 ### NAME FILE HERE (do NOT include .csv)
-file_name = "perm_matrix"
+file_name = "perm_matrix_0"
 
 ### DEFINE NUMBER OF POINTS HERE
 # This will be how many permeability datapoints are in each axis
@@ -60,11 +60,11 @@ for index, position in zip(positions, indices):
     # Rounding for simplicity
     Ex, Ey, Ez = round(Ex, 2), round(Ey, 2), round(Ez, 2)
 
-    data_rows += [{"x": x, "y": y, "z": z, "Ex": Ex, "Ey": Ey, "Ez": Ez, "x_index": x_index, "y_index": y_index, "z_index": z_index}]
+    data_rows += [{"x": x, "y": y, "z": z, "Ex": Ex, "Ey": Ey, "Ez": Ez}]
 
 # Create `file_name`.csv file and write our data
 with open(file_name+".csv", mode='w') as file:
-    headers = ["x", "y", "z", "Ex", "Ey", "Ez", "x_index", "y_index", "z_index"]
+    headers = ["x", "y", "z", "Ex", "Ey", "Ez"]
     writer = csv.DictWriter(file, fieldnames=headers)
     writer.writeheader()
 
