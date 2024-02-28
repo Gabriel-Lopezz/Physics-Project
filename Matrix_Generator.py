@@ -14,7 +14,6 @@ z_points = 10
 
 ### DEFINE DIMENSIONS HERE
 # This is how far the cube is from the origin in each axis
-# Ex: An 'x_length' of 10 means bounds in x in matrix are ±5
 x_distance = 5
 y_distance = 5
 z_distance = 5
