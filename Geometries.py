@@ -176,6 +176,7 @@ class Sphere(Shape):
             parent = scene,
             position = self.center,
             color = color_from_permeability(StoredVals.min_epsilon, StoredVals.max_epsilon, self.epsilons),
+            alpha = 0.5,
             scale = self.radius
         )
 
