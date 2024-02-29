@@ -82,19 +82,19 @@ def color_from_permeability(min_epsilon: float, max_epsilon: float, epsilons: tu
     return point_color
 
 # Vectors as tuple
-def right(scalar = 1):
+def right(scalar: float = 1):
     return (scalar, 0, 0)
 
-def left(scalar = 1):
+def left(scalar: float = 1):
     return (-scalar, 0, 0)
 
-def up(scalar = 1):
+def up(scalar: float = 1):
     return (0, scalar, 0)
 
-def up(scalar = 1):
+def up(scalar: float = 1):
     return (0, -scalar, 0)
 
-def forward(scalar = 1):
+def forward(scalar: float = 1):
     return (0, 0, scalar)
 
 def backwards(scalar = 1):

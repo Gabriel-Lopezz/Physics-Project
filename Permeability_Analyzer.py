@@ -5,6 +5,7 @@ from Geometries import PermeabilityCube, Point, Permeable
 from Utility import *
 from ursina import *
 import Sphere_Menu
+import math
 
 ##############################################################
 ### END 
@@ -76,13 +77,15 @@ for x in range(length):
 menu = Entity()
 menu_type = str()
 
+update_loop = []
+
 # Input handler
 def input(key):
     global menu
     global menu_type
 
     if key == "s":
-        destroy(menu)
+        destroy(menu) # VSCode gives a warning in Python 3.12.2; but works fine
 
         if menu_type == "sphere":
             menu_type = str()
@@ -97,6 +100,6 @@ def input(key):
             if isinstance(ent, Permeable): # If entity has permeability geometry
                 print("Position: ", ent.position, "  | Epsilons: ", ent.epsilons)
             else:
-                print("Did not hit permeablility Geometry")
+                print("Nonpermeable| Position: ", ent.position)
 
 app.run()

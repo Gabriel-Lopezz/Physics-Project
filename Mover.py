@@ -1,57 +1,58 @@
 from Utility import *
 from ursina import Entity, Draggable, mouse, clamp
 
-
 def spawn_movers(entity: Entity) -> tuple[Entity, Entity, Entity]:
     x_mover = Draggable(
         parent = entity,
-        position = right(scalar=entity.scale),
         lock = up(),
+        world_position = forward(entity.scale[2] / 1.5), # Divide by two because scale 'x' is halved
         world_rotation = (0, 0, 0),
+        scale = (0.5, 1, 1),
         model = "arrow",
         collider = "arrow"
     )
 
     y_mover = Draggable(
         parent = entity,
-        position = up(scalar=entity.scale),
         lock = right(),
+        world_position = forward(entity.scale[2] / 1.5),
         world_rotation = (0, 0, -90),
+        scale = (0.5, 1, 1),
         model = "arrow",
         collider = "arrow"
     )
 
     z_mover = Draggable(
         parent = entity,
-        position = forward(scalar=entity.scale),
-        world_rotation = (0, 90, 0),
+        world_position = forward(entity.scale[2] / 1.5),
+        world_rotation = (0, -90, 0),
+        scale = (0.5, 1, 1),
+        plane_direction = (1, 0, 0),
+        lock = (0, 1, 0),
         model = "arrow",
         collider = "arrow"
     )
 
-    # Override Draggable update function to work for z axis
-    def z_mover_update(z_mover):
-        if z_mover.dragging:
-            if mouse.world_point:
-                z_mover.world_z = mouse.world_point[0] - z_mover.start_offset[0]
-                
-            if z_mover.step[0] > 0:
-                hor_step = 1/z_mover.step[0]
-                z_mover.x = round(z_mover.x * hor_step) /hor_step
-            if z_mover.step[1] > 0:
-                ver_step = 1/z_mover.step[1]
-                z_mover.y = round(z_mover.y * ver_step) /ver_step
-            if z_mover.step[2] > 0:
-                dep_step = 1/z_mover.step[2]
-                z_mover.z = round(z_mover.z * dep_step) /dep_step
+    def move_entity(entity, mover, axis: str):
 
-        z_mover.position = (
-            clamp(z_mover.x, z_mover.min_x, z_mover.max_x),
-            clamp(z_mover.y, z_mover.min_y, z_mover.max_y),
-            clamp(z_mover.z, z_mover.min_z, z_mover.max_z)
-        )
+        new_pos: tuple[float, float, float]
+        if axis.lower() == "x":
+            new_scalar = mover.world_position[0] - entity.scale[0] / 1.5
+            new_pos = (entity.position[0], new_scalar, entity.position[2])
+        elif axis.lower() == "y":
+            new_scalar = mover.world_position[1] - entity.scale[1] / 1.5
+            new_pos = (entity.position[0], new_scalar, entity.position[2])
+        elif axis.lower() == "z":
+            new_scalar = mover.world_position[2] - entity.scale[2] / 1.5
+            new_pos = (entity.position[0], entity.position[1], new_scalar)
+        else:
+            raise Exception("You did not input a valid Move_entity axis")
 
-    z_mover.update = lambda: z_mover_update(z_mover)
+        entity.position = new_pos
+        
+
+    x_mover.start_dragging = lambda: move_entity(entity, x_mover, "x")
+    y_mover.update = lambda: move_entity(entity, y_mover, "y")
+    z_mover.update = lambda: move_entity(entity, z_mover, "z")
     
-
     return (x_mover, y_mover, z_mover)
