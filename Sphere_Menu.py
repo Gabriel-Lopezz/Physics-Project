@@ -64,15 +64,40 @@ def create_menu():
         parent = menu
     )
 
-    # Epsilon Input
+    # Epsilons Input
     Text(
-        text = "Epsilon: ",
-        position=(0.55, 0.175),
+        text = "Epsilon X: ",
+        position=(0.5, 0.175),
         parent = menu
     )
-    epsilon = InputField(
+
+    Ex = InputField(
         text="1",
         position=(0.7, 0.175),
+        scale=(0.1, 0.05),
+        parent = menu
+    )
+
+    Text(
+        text = "Epsilon Y: ",
+        position=(0.5, 0.1),
+        parent = menu
+    )
+    Ey = InputField(
+        text="1",
+        position=(0.7, 0.1),
+        scale=(0.1, 0.05),
+        parent = menu
+    )
+
+    Text(
+        text = "Epsilon Z: ",
+        position=(0.5, 0.025),
+        parent = menu
+    )
+    Ez = InputField(
+        text="1",
+        position=(0.7, 0.025),
         scale=(0.1, 0.05),
         parent = menu
     )
@@ -81,13 +106,14 @@ def create_menu():
         parent = menu,
         text = 'Spawn Sphere',
         color = color.azure,
-        position = (0.7, 0),
+        position = (0.7, -0.05),
         scale = (0.2, 0.05),
         on_click = lambda: Sphere(
-            radius = num_from_text(circle_r),
-            epsilons= (num_from_text(epsilon), num_from_text(epsilon), num_from_text(epsilon)),
-            center = (num_from_text(circle_x), num_from_text(circle_y), num_from_text(circle_z))
-        ).spawn_sphere()
+            scale = num_from_text(circle_r),
+            epsilons = (num_from_text(Ex), num_from_text(Ey), num_from_text(Ez)),
+            position = (num_from_text(circle_x), num_from_text(circle_y), num_from_text(circle_z)),
+            alpha = 0.5
+        )
     )
 
     return menu

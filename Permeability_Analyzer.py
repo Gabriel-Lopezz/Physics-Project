@@ -1,7 +1,7 @@
 from typing import List
 import numpy as np
 import pandas as pd
-from Geometries import PermeabilityCube, Sphere, Point
+from Geometries import PermeabilityCube, Point, Permeable
 from Utility import *
 from ursina import *
 import Sphere_Menu
@@ -21,8 +21,8 @@ max_epsilon = 100
 min_epsilon = 0
 ##############################################################
 
-StoredVals.min_epsilon = min_epsilon
-StoredVals.max_epsilon = max_epsilon
+StoredValues.min_epsilon = min_epsilon
+StoredValues.max_epsilon = max_epsilon
 
 dataframe = pd.read_csv(file_name)
 
@@ -52,24 +52,23 @@ for x in range(length):
             Ez = dataframe["Ez"][index]
 
             position = (x, y, z)
-            point_color = color_from_permeability(min_epsilon, max_epsilon, (Ex, Ey, Ez))
+            
+            epsilons = (Ex, Ey, Ez)
 
-            ent = Entity(
-                model ="sphere",
-                color = point_color,
-                collider = 'sphere',
+            point = Point(
+                add_to_scene_entities=True,
+                epsilons = epsilons,
                 position = position,
                 parent = scene,
                 origin_y = 0,
                 origin_x = 0,
                 origin_z = 0,
                 scale = 0.25,
-                alpha = 0.25
+                alpha = 0.3
             )
 
             # Add Epsilon x,y,z attributes
-            epsilons = (Ex, Ey, Ez)
-            ent.geometry = Point(epsilon=epsilons)
+            point.epsilons = epsilons
 
             index += 1
 
@@ -82,7 +81,7 @@ def input(key):
     global menu
     global menu_type
 
-    if key == "f":
+    if key == "s":
         destroy(menu)
 
         if menu_type == "sphere":
@@ -95,10 +94,8 @@ def input(key):
         if mouse.world_point and mouse.hovered_entity: # If user clicked on a permeable geometry
             ent = mouse.hovered_entity
 
-            if hasattr(ent, "geometry"): # If entity has permeability geometry
-                geometry = ent.geometry
-
-                print("Position: ", ent.position, "  | Epsilons: ", geometry.epsilons)
+            if isinstance(ent, Permeable): # If entity has permeability geometry
+                print("Position: ", ent.position, "  | Epsilons: ", ent.epsilons)
             else:
                 print("Did not hit permeablility Geometry")
 

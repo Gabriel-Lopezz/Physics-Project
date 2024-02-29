@@ -4,26 +4,40 @@ from numpy import typing
 from ursina import Entity, scene, ursinamath
 from Utility import *
 import math
+import Mover
 
-class Point:
+def is_out_of_range(val, min, max) -> bool:
+        return val < min or val > max
+
+
+class Permeable(Entity):
     epsilons: tuple[float, float, float]
-    position: tuple[float, float, float]
 
-    def __init__(self, epsilon: tuple[float, float, float]):
-        self.epsilons = epsilon
+    def __init__(self, add_to_scene_entities=True, **kwargs) -> None:
+        self.epsilons = kwargs["epsilons"]
+        kwargs["color"] = color_from_permeability(StoredValues.min_epsilon, StoredValues.max_epsilon, self.epsilons)
+
+        super().__init__(add_to_scene_entities, **kwargs)
+
+        self.alpha_setter(kwargs["alpha"]) # Alpha parameter was not working right
+
+    def permeability_at_point(self, position) -> tuple[float, float, float]:
+        return self.epsilons
+    
+class Point(Permeable):
+    def __init__(self, add_to_scene_entities=True, **kwargs) -> None:  
+        super().__init__(
+            add_to_scene_entities=add_to_scene_entities,
+            model = "sphere", 
+            collider = "sphere",
+            **kwargs
+        )
 
     def permeability_at_point(self) -> tuple[float, float, float]:
         return self.epsilons
 
-class Shape:
-    epsilons: tuple[float, float, float]
 
-    def permeability_at_point(self, position) -> tuple[float, float, float]:
-        return self.epsilons
-    def is_out_of_range(self, val, min, max) -> bool:
-            return val < min or val > max
-
-class PermeabilityCube(Shape):
+class PermeabilityCube():
     coord_min: float # Least value for a coordinate in any given axis
     coord_max: float # Greatest value for a coordinate in any given axis
 
@@ -61,7 +75,7 @@ class PermeabilityCube(Shape):
             self.pos_to_val[position] = values
     
     def permeability_at_point(self, x: int, y: int, z:int) -> float:
-        if super().is_out_of_range(x, self.coord_min, self.coord_max) or super().is_out_of_range(y, self.coord_min, self.coord_max) or super().is_out_of_range(z, self.coord_min, self.coord_max):
+        if is_out_of_range(x, self.coord_min, self.coord_max) or is_out_of_range(y, self.coord_min, self.coord_max) or is_out_of_range(z, self.coord_min, self.coord_max):
             raise Exception("Please input a coordinate within the bounds of the shape")
         
         pc = self.possible_coords # Stored for simplicity and efficiency
@@ -132,41 +146,45 @@ class PermeabilityCube(Shape):
 
         return result_epsilon
 
-
-
-
-class Sphere(Shape):
-    center: tuple[float, float, float]
-    radius: float
-    epsilons: tuple[float, float, float]
+class Sphere(Permeable):
+    movers: tuple[Entity, Entity, Entity]
     pattern: str
 
-    def __init__(self, radius: float, epsilons: tuple[float, float, float], center=(0,0,0), pattern="uniform") -> None:
-        self.center = center
-        self.radius = radius
-        self.epsilons = epsilons
+    def __init__(self, pattern="uniform", add_to_scene_entities=True, **kwargs) -> None:
+        super().__init__(
+            add_to_scene_entities=add_to_scene_entities,
+            model = "sphere", 
+            collider = "sphere",
+            **kwargs)
 
         if pattern not in ["uniform", "inverse", "inverse-squared"]:
             raise Exception("Please input a valid pattern")
         self.pattern = pattern
+
+        self.movers = Mover.spawn_movers(self)
     
-    def permeability_at_point(self, x, y, z) -> tuple[float, float, float]:
-        distance = math.sqrt(self.center, (x, y, z))
+    def permeability_at_point(self, position: tuple[float, float, float]) -> tuple[float, float, float]:
+        distance = math.sqrt(self.position, position)
 
         if self.pattern == "uniform":
             Ex = self.epsilons[0]
             Ey = self.epsilons[1]
             Ez = self.epsilons[2]
+
             return (Ex, Ey, Ez)
+        
         if self.pattern == "inverse":
             Ex = self.epsilons[0] / distance
             Ey = self.epsilons[1] / distance
             Ez = self.epsilons[2] / distance
+
             return (Ex, Ey, Ez)
+        
         if self.pattern == "inverse-squared":
             Ex = self.epsilons[0] / distance**2
             Ey = self.epsilons[1] / distance**2
             Ez = self.epsilons[2] / distance**2
+
             return (Ex, Ey, Ez)
         
     def spawn_sphere(self):
@@ -176,7 +194,6 @@ class Sphere(Shape):
             parent = scene,
             position = self.center,
             color = color_from_permeability(StoredVals.min_epsilon, StoredVals.max_epsilon, self.epsilons),
-            alpha = 0.5,
             scale = self.radius
         )
 
