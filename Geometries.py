@@ -10,7 +10,7 @@ def is_out_of_range(val, min, max) -> bool:
         return val < min or val > max
 
 
-class Permeable(Entity):
+class FieldObject(Entity):
     epsilons: tuple[float, float, float]
 
     def __init__(self, add_to_scene_entities=True, **kwargs) -> None:
@@ -24,7 +24,7 @@ class Permeable(Entity):
     def permeability_at_point(self, position) -> tuple[float, float, float]:
         return self.epsilons
     
-class Point(Permeable):
+class Point(FieldObject):
     def __init__(self, add_to_scene_entities=True, **kwargs) -> None:  
         super().__init__(
             add_to_scene_entities=add_to_scene_entities,
@@ -37,7 +37,7 @@ class Point(Permeable):
         return self.epsilons
 
 
-class PermeabilityCube():
+class FieldCube():
     coord_min: float # Least value for a coordinate in any given axis
     coord_max: float # Greatest value for a coordinate in any given axis
 
@@ -126,7 +126,7 @@ class PermeabilityCube():
 
         return result_epsilon
 
-class Sphere(Permeable):
+class Sphere(FieldObject):
     movers: tuple[Entity, Entity, Entity]
     pattern: str
 
@@ -166,7 +166,8 @@ class Sphere(Permeable):
             Ez = self.epsilons[2] / distance**2
 
             return (Ex, Ey, Ez)
-        
+    
+    # Check if this is necessary anymore
     def spawn_sphere(self):
         ent = Entity(
             model = "sphere",
@@ -194,7 +195,7 @@ class Traverser:
         self.speed = speed
         self.updates_per_unit = updates_per_unit
 
-    def epsilons_after_time(self, time: float, cube: PermeabilityCube) -> list[float]:
+    def epsilons_after_time(self, time: float, cube: FieldCube) -> list[float]:
         destination = self.start_pos + self.direction * self.speed * time
         updates = math.ceil(ursinamath.distance(self.start_pos, destination)) * self.updates_per_unit
 

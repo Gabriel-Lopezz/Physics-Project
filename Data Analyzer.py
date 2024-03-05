@@ -1,7 +1,7 @@
 from typing import List
 import numpy as np
 import pandas as pd
-from Geometries import PermeabilityCube, Point, Permeable
+from Geometries import FieldCube, Point, FieldObject
 from Utility import *
 from ursina import *
 import Sphere_Menu
@@ -27,7 +27,7 @@ StoredValues.max_epsilon = max_epsilon
 
 dataframe = pd.read_csv(file_name)
 
-cube = PermeabilityCube(dataframe)
+cube = FieldCube(dataframe)
 
 # 3D Rendering
 app = Ursina()
@@ -69,6 +69,7 @@ for x in range(length):
             )
 
             # Add Epsilon x,y,z attributes
+            # Check if this is necessary!
             point.epsilons = epsilons
 
             index += 1
@@ -97,7 +98,7 @@ def input(key):
         if mouse.world_point and mouse.hovered_entity: # If user clicked on a permeable geometry
             ent = mouse.hovered_entity
 
-            if isinstance(ent, Permeable): # If entity has permeability geometry
+            if isinstance(ent, FieldObject): # If entity has permeability geometry
                 print("Position: ", ent.position, "  | Epsilons: ", ent.epsilons)
             else:
                 print("Nonpermeable| Position: ", ent.position)

@@ -7,7 +7,7 @@ def spawn_movers(entity: Entity) -> tuple[Entity, Entity, Entity]:
 
     x_mover = Draggable(
         parent = scene,
-        world_position = right(entity.scale[2] / 1.5), # Divide by two because scale 'x' is halved
+        world_position = Vector3.right(entity.scale[2] / 1.5), # Divide by two because scale 'x' is halved
         world_rotation = (0, 0, 0),
         scale = (0.5, 1, 1),
         model = "arrow",
@@ -16,7 +16,7 @@ def spawn_movers(entity: Entity) -> tuple[Entity, Entity, Entity]:
 
     y_mover = Draggable(
         parent = entity,
-        lock = right(),
+        lock = Vector3.right(),
         world_rotation = (0, 0, -90),
         scale = (0.5, 1, 1),
         model = "arrow",
