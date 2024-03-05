@@ -74,7 +74,8 @@ class PermeabilityCube():
 
             self.pos_to_val[position] = values
     
-    def permeability_at_point(self, x: int, y: int, z:int) -> float:
+    # Returns direcitonal values from trilinearly interpolating nearby values
+    def values_at_point(self, x: int, y: int, z:int) -> float:
         if is_out_of_range(x, self.coord_min, self.coord_max) or is_out_of_range(y, self.coord_min, self.coord_max) or is_out_of_range(z, self.coord_min, self.coord_max):
             raise Exception("Please input a coordinate within the bounds of the shape")
         
@@ -98,49 +99,28 @@ class PermeabilityCube():
         z1 = pc[si_z -1]
         z2 = pc[si_z]
 
-        # Each point is an array holding [position, epsilon values]
+        # ValuePoint holds position and directional values (epsilons)
         # Square 1
-        A = ValuePoint((x1, y1, z1), self.pos_to_val[(x1, y1, z1)])
-        B = ValuePoint((x2, y1, z1), self.pos_to_val[(x2, y1, z1)])
-        C = ValuePoint((x1, y1, z2), self.pos_to_val[(x1, y1, z2)])
-        D = ValuePoint((x2, y1, z2), self.pos_to_val[(x2, y1, z2)])
+        A = ValuePoint(position = (x1, y1, z1), epsilons = self.pos_to_val[(x1, y1, z1)])
+        B = ValuePoint(position = (x2, y1, z1), epsilons = self.pos_to_val[(x2, y1, z1)])
+        C = ValuePoint(position = (x1, y1, z2), epsilons = self.pos_to_val[(x1, y1, z2)])
+        D = ValuePoint(position = (x2, y1, z2), epsilons = self.pos_to_val[(x2, y1, z2)])
 
         # Square 2
-        E = ValuePoint((x1, y2, z1), self.pos_to_val[(x1, y2, z1)])
-        F = ValuePoint((x2, y2, z1), self.pos_to_val[(x2, y2, z1)])
-        G = ValuePoint((x1, y2, z2), self.pos_to_val[(x1, y2, z2)])
-        H = ValuePoint((x2, y2, z2), self.pos_to_val[(x2, y2, z2)])
-        
-        print(
-            "A: ", A.position, " ", A.epsilons,
-            "\nB: ", B.position, " ", B.epsilons,
-            "\nC: ", C.position, " ", C.epsilons,
-            "\nD: ", D.position, " ", D.epsilons,
-            "\nE: ", E.position, " ", E.epsilons,
-            "\nF: ", F.position, " ", F.epsilons,
-            "\nG: ", G.position, " ", G.epsilons,
-            "\nH: ", H.position, " ",  H.epsilons
-        )
+        E = ValuePoint(position = (x1, y2, z1), epsilons = self.pos_to_val[(x1, y2, z1)])
+        F = ValuePoint(position = (x2, y2, z1), epsilons = self.pos_to_val[(x2, y2, z1)])
+        G = ValuePoint(position = (x1, y2, z2), epsilons = self.pos_to_val[(x1, y2, z2)])
+        H = ValuePoint(position = (x2, y2, z2), epsilons = self.pos_to_val[(x2, y2, z2)])
 
-        xx1 = lerp_points(A, B, P, axis="x")
-        print("XX1: ", xx1.epsilons)
-        xx2 = lerp_points(C, D, P, axis="x")
-        print("XX2: ", xx2.epsilons)
-        xz1 = lerp_points(xx1, xx2, P, axis="z")
-        print("XZ1: ", xz1.epsilons)
+        xx1 = lerp_points(start = A, end = B, point = P, axis = "x") # ValuePoint between A and B, AB
+        xx2 = lerp_points(start = C, end = D, point = P, axis = "x") # ValuePoint between C and D, CD
+        xz1 = lerp_points(start = xx1, end = xx2, point = P, axis = "z") # ValuePoint AB and CD, ABCD
 
-        xx3 = lerp_points(E, F, P, axis="x")
-        print("XX3: ", xx3.epsilons)
-        xx4 = lerp_points(G, H, P, axis="x")
-        print("XX4: ", xx4.epsilons)
-        xz2 = lerp_points(xx3, xx4, P, axis="z")
-        print("XZ2: ", xz2.epsilons)
+        xx3 = lerp_points(start = E, end = F, point = P, axis = "x") # ValuePoint between E and F, EF
+        xx4 = lerp_points(start = G, end = H, point = P, axis = "x") # ValuePoint between G and H, GH
+        xz2 = lerp_points(start = xx3, end = xx4, point = P, axis = "z") # ValuePoint between EF and GH, EFGH
 
-        result_point = lerp_points(xz1, xz2, P, axis="y")
-        print("THIS IS THE RESULT POINT POSITION: ",
-              "\nX: ", result_point.position[0],
-              "\nY: ", result_point.position[1],
-              "\nZ: ", result_point.position[2])
+        result_point = lerp_points(start = xz1, end = xz2, point = P, axis = "y") # ValuePoint between ABCD and EFGH
         
         result_epsilon = result_point.epsilons
 
@@ -221,12 +201,12 @@ class Traverser:
         # Only applicable for 1D movement
         index = self.direction.index(1) # Get index where direction = 1
 
-        epsilons = [cube.permeability_at_point(self.start_pos)]
+        epsilons = [cube.values_at_point(self.start_pos)]
         
         for update in range(updates):
             distance = (updates + 1) / self.updates_per_unit # +1 because we already counted starting position
             cur_point = self.start_pos + self.direction * distance
 
-            epsilons += [cube.permeability_at_point(cur_point)]
+            epsilons += [cube.values_at_point(cur_point)]
         
         return epsilons

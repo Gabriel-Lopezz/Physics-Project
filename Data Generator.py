@@ -28,7 +28,11 @@ if isfile(file_name + ".csv"):
 
 # Get random 4D array: first x, then y, then z, then our epsilon values
 # range_min is minimum value returned; range_max is max value returned; size is dimensions of array
-value_matrix = np.random.uniform(low=range_min, high=range_max, size=(x_points, y_points, z_points, 3))
+value_matrix = np.random.uniform(
+    low=range_min, 
+    high=range_max, 
+    size=(x_points, y_points, z_points, 3)
+    )
 
 # Get all positions into an array of tuples centered about the origin
 positions = []

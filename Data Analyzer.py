@@ -101,5 +101,17 @@ def input(key):
                 print("Position: ", ent.position, "  | Epsilons: ", ent.epsilons)
             else:
                 print("Nonpermeable| Position: ", ent.position)
+    
+    if key == "right mouse down":
+        x_rand = round(random.uniform(-5, 5), 2)
+        y_rand = round(random.uniform(-5, 5), 2)
+        z_rand = round(random.uniform(-5, 5), 2)
+
+
+        permeability = cube.values_at_point(x_rand, y_rand, z_rand)
+        with open("random_points.txt", "a") as file:
+            file.write(f"({x_rand}, {y_rand}, {z_rand}): {permeability}\n")
+
+        print("Permeability at ", (x_rand, y_rand, z_rand), ": ", permeability)
 
 app.run()
