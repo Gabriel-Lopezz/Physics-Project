@@ -1,6 +1,10 @@
 from Utility import *
 from ursina import Entity, Draggable, mouse, clamp, scene, Vec3, camera
 
+def activate_mover(entity: Draggable, entities: list[Entity, Entity, Entity]):
+    mover.start_dragging()
+
+
 def spawn_movers(entity: Entity) -> tuple[Entity, Entity, Entity]:
     parent_ent = Entity()
     entity.parent = parent_ent
@@ -15,7 +19,7 @@ def spawn_movers(entity: Entity) -> tuple[Entity, Entity, Entity]:
     )
 
     y_mover = Draggable(
-        parent = entity,
+        parent = scene,
         lock = Vector3.right(),
         world_rotation = (0, 0, -90),
         scale = (0.5, 1, 1),
@@ -24,7 +28,7 @@ def spawn_movers(entity: Entity) -> tuple[Entity, Entity, Entity]:
     )
 
     z_mover = Draggable(
-        parent = entity,
+        parent = scene,
         world_rotation = (0, -90, 0),
         scale = (0.5, 1, 1),
         plane_direction = (1, 0, 0),
