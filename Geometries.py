@@ -1,28 +1,57 @@
 import pandas as pd
 import numpy as np
 from numpy import typing
-from ursina import Entity, scene, ursinamath
+from ursina import Entity, scene, ursinamath, Tooltip, Button, destroy, mouse
 from Utility import *
 import math
 import Mover
+import time
+import threading
 
 def is_out_of_range(val, min, max) -> bool:
         return val < min or val > max
 
-
-class FieldObject(Entity):
+class FieldObject(Button):
     epsilons: tuple[float, float, float]
 
     def __init__(self, add_to_scene_entities=True, **kwargs) -> None:
         self.epsilons = kwargs["epsilons"]
         kwargs["color"] = color_from_permeability(StoredValues.min_epsilon, StoredValues.max_epsilon, self.epsilons)
+        
+        if not "parent" in kwargs:
+            kwargs["parent"] = scene
 
         super().__init__(add_to_scene_entities, **kwargs)
 
-        self.alpha_setter(kwargs["alpha"]) # Alpha parameter was not working right
+        self.alpha_setter(kwargs["alpha"]) # Alpha set afterwards; otherwise, won't work (but it should)
+        self.tooltip = None # setting it to None for simple evaluation
 
     def permeability_at_point(self, position) -> tuple[float, float, float]:
         return self.epsilons
+    
+    def on_mouse_enter(self):
+        if self.tooltip is None:
+            position = f"({round(self.position[0], 3)}, {round(self.position[1], 3)}, {round(self.position[2], 3)})"
+            epsilons = f"({round(self.epsilons[0], 3)}, {round(self.epsilons[1], 3)}, {round(self.epsilons[2], 3)})"
+
+            info = "(X, Y, Z):      " + position  + "\n(Ex, Ey, Ez): " + epsilons
+
+            self.tooltip = Tooltip(info, wordwrap = 75)
+
+        # Waits for the user to have been on object for a second before opening tooltip menu
+        def focus_object():
+            time.sleep(1)
+
+            if self.hovered:
+                self.tooltip.enable()
+
+        t = threading.Thread(target=focus_object)
+        t.start()
+
+    def on_mouse_exit(self):
+        self.tooltip.disable()
+        destroy(self.tooltip) # To save memory; already so many entities
+        self.tooltip = None
     
 class Point(FieldObject):
     def __init__(self, add_to_scene_entities=True, **kwargs) -> None:  
@@ -35,7 +64,6 @@ class Point(FieldObject):
 
     def permeability_at_point(self) -> tuple[float, float, float]:
         return self.epsilons
-
 
 class FieldCube():
     coord_min: float # Least value for a coordinate in any given axis
@@ -133,7 +161,7 @@ class Sphere(FieldObject):
     def __init__(self, pattern="uniform", add_to_scene_entities=True, **kwargs) -> None:
         super().__init__(
             add_to_scene_entities=add_to_scene_entities,
-            model = "sphere", 
+            model = "sphere",
             collider = "sphere",
             **kwargs)
 
@@ -166,20 +194,25 @@ class Sphere(FieldObject):
             Ez = self.epsilons[2] / distance**2
 
             return (Ex, Ey, Ez)
+
+    def activate_movers(self):
+        self.movers[0].enable()
+        self.movers[1].enable()
+        self.movers[2].enable()
+
+    def deactivate_movers(self):
+        self.movers[0].disable()
+        self.movers[1].disable()
+        self.movers[2].disable()
+
+    def on_click(self):
+        self.activate_movers()
     
-    # Check if this is necessary anymore
-    def spawn_sphere(self):
-        ent = Entity(
-            model = "sphere",
-            collider= "sphere",
-            parent = scene,
-            position = self.center,
-            color = color_from_permeability(StoredVals.min_epsilon, StoredVals.max_epsilon, self.epsilons),
-            scale = self.radius
-        )
+    def input(self, key):
+        is_mover_hovered = self.movers[0].hovered or self.movers[1].hovered or self.movers[2].hovered
 
-        ent.geometry = self
-
+        if key == "left mouse down" and not is_mover_hovered:
+            self.deactivate_movers()
     
     # Later implement out of range method
 

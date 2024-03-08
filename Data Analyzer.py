@@ -1,7 +1,7 @@
 from typing import List
 import numpy as np
 import pandas as pd
-from Geometries import FieldCube, Point, FieldObject
+from Geometries import FieldCube, Point, Sphere
 from Utility import *
 from ursina import *
 import Sphere_Menu
@@ -78,29 +78,29 @@ for x in range(length):
 menu = Entity()
 menu_type = str()
 
-update_loop = []
+# Store last pressed object
+prev_highlighted_obj = None
+highlighted_obj = None
 
 # Input handler
 def input(key):
     global menu
     global menu_type
+    global prev_highlighted_obj
+    global highlighted_obj
 
-    if key == "s":
-        destroy(menu) # VSCode gives a warning in Python 3.12.2; but works fine
+    print("key: " + key)
+    match key:
+        case "s":
+            destroy(menu) # VSCode gives a warning in Python 3.12.2; but works fine
 
-        if menu_type == "sphere":
-            menu_type = str()
-        else:
-            menu = Sphere_Menu.create_menu()
-            menu_type = "sphere"
-    
-    if key == "left mouse down":
-        if mouse.world_point and mouse.hovered_entity: # If user clicked on a permeable geometry
-            ent = mouse.hovered_entity
-            
-            if isinstance(ent, FieldObject): # If entity has permeability geometry
-                print("Position: ", ent.position, "  | Epsilons: ", ent.epsilons)
+            if menu_type == "sphere":
+                menu_type = str()
             else:
-                print("Nonpermeable| Position: ", ent.position)
+                menu = Sphere_Menu.create_menu()
+                menu_type = "sphere"
+        case "delete":
+            if isinstance(highlighted_obj, Sphere):
+                destroy(highlighted_obj)
 
 app.run()
