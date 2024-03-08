@@ -97,7 +97,7 @@ def input(key):
     if key == "left mouse down":
         if mouse.world_point and mouse.hovered_entity: # If user clicked on a permeable geometry
             ent = mouse.hovered_entity
-
+            
             if isinstance(ent, FieldObject): # If entity has permeability geometry
                 print("Position: ", ent.position, "  | Epsilons: ", ent.epsilons)
             else:
