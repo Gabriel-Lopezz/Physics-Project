@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 
 ### NAME FILE HERE (do NOT include .csv)
-file_name = "perm_matrix_0"
+file_name = "perm_matrix"
 
 ### DEFINE NUMBER OF POINTS HERE
 # This will be how many permeability datapoints are in each axis
@@ -19,8 +19,8 @@ y_distance = 5
 z_distance = 5
 
 ### DEFINE VALUE RANGE HERE (LOWEST AND HIGHEST EPSLION VALUES)
-range_min = 0
-range_max = 100
+epsilon_min = 0
+epsilon_max = 100
 
 # Ensure we're not overriding another file
 if isfile(file_name + ".csv"):
@@ -29,8 +29,8 @@ if isfile(file_name + ".csv"):
 # Get random 4D array: first x, then y, then z, then our epsilon values
 # range_min is minimum value returned; range_max is max value returned; size is dimensions of array
 value_matrix = np.random.uniform(
-    low=range_min, 
-    high=range_max, 
+    low=epsilon_min, 
+    high=epsilon_max, 
     size=(x_points, y_points, z_points, 3)
     )
 
@@ -51,6 +51,10 @@ for x, x_index in enumerate(x_coords):
 # `data_rows` will be the array we dump our positions and values into
 data_rows = []
 
+# First 2 rows to be for information to help set up analyzer
+data_rows += [{"x": x_points, "y": y_points, "z": z_points, "Ex": epsilon_min, "Ey": epsilon_min, "Ez": epsilon_min}]
+data_rows += [{"x": x_points, "y": y_points, "z": z_points, "Ex": epsilon_max, "Ey": epsilon_max, "Ez": epsilon_max}]
+
 for index, position in zip(positions, indices):
     # Get positions
     x, y, z = position[0], position[1], position[2]
@@ -65,12 +69,12 @@ for index, position in zip(positions, indices):
 
     data_rows += [{"x": x, "y": y, "z": z, "Ex": Ex, "Ey": Ey, "Ez": Ez}]
 
-# Create `file_name`.csv file and write our data
+# Create `file_name`.csv file and write our data to it
 with open(file_name+".csv", mode='w') as file:
     headers = ["x", "y", "z", "Ex", "Ey", "Ez"]
     writer = csv.DictWriter(file, fieldnames=headers)
+    
     writer.writeheader()
-
     writer.writerows(data_rows)
 
 # Here is to test what it looks like as a pandas Dataframe

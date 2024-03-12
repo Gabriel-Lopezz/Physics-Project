@@ -16,6 +16,7 @@ class Mover(Draggable):
         
         self.tooltip = Tooltip(info, wordwrap = 75)
 
+    # Modified standard Draggable Update
     def update(self):
         if self.dragging:
             if mouse.world_point:
@@ -28,13 +29,13 @@ class Mover(Draggable):
 
             if self.step[0] > 0:
                 hor_step = 1/self.parent.step[0]
-                self.x = round(self.parent.x * hor_step) /hor_step
+                self.parent.x = round(self.parent.x * hor_step) / hor_step
             if self.step[1] > 0:
                 ver_step = 1/self.parent.step[1]
-                self.parent.y = round(self.parent.y * ver_step) /ver_step
+                self.parent.y = round(self.parent.y * ver_step) / ver_step
             if self.step[2] > 0:
                 dep_step = 1/self.parent.step[2]
-                self.parent.z = round(self.parent.z * dep_step) /dep_step
+                self.parent.z = round(self.parent.z * dep_step) / dep_step
 
         self.parent.position = (
             clamp(self.parent.x, self.min_x, self.max_x),

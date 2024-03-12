@@ -8,7 +8,6 @@ import Sphere_Menu
 import math
 
 ##############################################################
-### END 
 ### USER
 ### INPUTS
 ### HERE
@@ -16,23 +15,25 @@ import math
 ### File Name Here
 file_name = "perm_matrix.csv"
 
-### epsilon max value here
-max_epsilon = 100
-### epsilon min value here
-min_epsilon = 0
 ##############################################################
-
-StoredValues.min_epsilon = min_epsilon
-StoredValues.max_epsilon = max_epsilon
 
 dataframe = pd.read_csv(file_name)
 
-cube = FieldCube(dataframe)
+# Set minimums and maximums and x,y,z points
+StoredValues.min_epsilon = dataframe["Ex"][0]
+StoredValues.max_epsilon = dataframe["Ex"][1]
+x_points = int(dataframe["x"][0])
+y_points = int(dataframe["y"][0])
+z_points = int(dataframe["z"][0])
 
+# Drop first two "min" and 'max" rows
+dataframe = dataframe[2:]
+dataframe = dataframe.reset_index(drop=True)
+dataframe.head()
+
+cube = FieldCube(dataframe)
 # 3D Rendering
 app = Ursina()
-
-length = int(math.cbrt(len(dataframe)))
 
 index = 0
 camera.position = (0, 0, -30)
@@ -41,9 +42,9 @@ camera = EditorCamera()
 camera.hotkeys['focus'] = "`" # Change hotkey for 'focus' from 'f' to '`' so that typing is less problematic
 
 # Spawn small spheres to represent every datapoint 
-for x in range(length):
-    for y in range(length):
-        for z in range(length):
+for x in range(x_points):
+    for y in range(y_points):
+        for z in range(z_points):
             x = dataframe["x"][index]
             y = dataframe["y"][index]
             z = dataframe["z"][index]
@@ -70,7 +71,6 @@ for x in range(length):
 
             # Add Epsilon x,y,z attributes
             # Check if this is necessary!
-            point.epsilons = epsilons
 
             index += 1
 
