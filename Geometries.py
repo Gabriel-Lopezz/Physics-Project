@@ -65,7 +65,7 @@ class Point(FieldObject):
     def permeability_at_point(self) -> tuple[float, float, float]:
         return self.epsilons
 
-class FieldCube():
+class FieldBox():
     coord_min: float # Least value for a coordinate in any given axis
     coord_max: float # Greatest value for a coordinate in any given axis
 
@@ -228,7 +228,7 @@ class Traverser:
         self.speed = speed
         self.updates_per_unit = updates_per_unit
 
-    def epsilons_after_time(self, time: float, cube: FieldCube) -> list[float]:
+    def epsilons_after_time(self, time: float, cube: FieldBox) -> list[float]:
         destination = self.start_pos + self.direction * self.speed * time
         updates = math.ceil(ursinamath.distance(self.start_pos, destination)) * self.updates_per_unit
 

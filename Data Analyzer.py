@@ -1,7 +1,7 @@
 from typing import List
 import numpy as np
 import pandas as pd
-from Geometries import FieldCube, Point, Sphere
+from Geometries import FieldBox, Point, Sphere
 from Utility import *
 from ursina import *
 import Sphere_Menu
@@ -31,7 +31,7 @@ dataframe = dataframe[2:]
 dataframe = dataframe.reset_index(drop=True)
 dataframe.head()
 
-cube = FieldCube(dataframe)
+cube = FieldBox(dataframe)
 # 3D Rendering
 app = Ursina()
 
