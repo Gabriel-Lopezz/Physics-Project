@@ -16,7 +16,7 @@ class FieldObject(Button):
 
     def __init__(self, add_to_scene_entities=True, **kwargs) -> None:
         self.epsilons = kwargs["epsilons"]
-        kwargs["color"] = color_from_permeability(StoredValues.min_epsilon, StoredValues.max_epsilon, self.epsilons)
+        kwargs["color"] = color_from_epsilons(StoredValues.min_epsilon, StoredValues.max_epsilon, self.epsilons)
         
         if not "parent" in kwargs:
             kwargs["parent"] = scene

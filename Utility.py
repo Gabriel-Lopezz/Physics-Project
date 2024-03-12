@@ -66,16 +66,16 @@ def lerp_points(start: ValuePoint, end: ValuePoint, point: tuple[float, float, f
 
 # We will use color to describe permeability in each direction (x, y, z)
 # Ɛx determines redness, Ɛy determines greenness, Ɛz determines blueness
-def color_from_permeability(min_epsilon: float, max_epsilon: float, epsilons: tuple[float, float, float]) -> Color:
+def color_from_epsilons(min_epsilon: float, max_epsilon: float, epsilons: tuple[float, float, float]) -> Color:
     # Get how big the permeability is in each direction relative to the min and max epsilons
-    perm_x = lerp_factor(min_epsilon, max_epsilon, epsilons[0])
-    perm_y = lerp_factor(min_epsilon, max_epsilon, epsilons[1])
-    perm_z = lerp_factor(min_epsilon, max_epsilon, epsilons[2])
+    Ex = lerp_factor(min_epsilon, max_epsilon, epsilons[0])
+    Ey = lerp_factor(min_epsilon, max_epsilon, epsilons[1])
+    Ez = lerp_factor(min_epsilon, max_epsilon, epsilons[2])
 
     # 255 is the max RGB component value
-    redness = perm_x * 255
-    greenness = perm_y * 255
-    blueness = perm_z * 255
+    redness = Ex * 255
+    greenness = Ey * 255
+    blueness = Ez * 255
 
     point_color = color.rgb(redness, greenness, blueness)
 
